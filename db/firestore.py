@@ -11,7 +11,7 @@ class FirestoreDB:
             database_name = 'nekoconnect-dev-db'
         elif env == 'cloud' or env == 'prod':
             database_name = 'nekoconnect-db'
-        config = st.secrets['Firestore']
+        config = dict(st.secrets['Firestore'])
         project_name = config['project_id']
         del config['project_id']
         credentials = service_account.Credentials.from_service_account_info(config)
