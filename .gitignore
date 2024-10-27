@@ -165,3 +165,6 @@ nekoconnect_db.json
 toy_record_db_dev.json
 .streamlit/firestore_key.json
 .streamlit/secrets.toml
+.vscode/launch.json
+nekoconnect_db_dev.json
+data/toy_record_db.json

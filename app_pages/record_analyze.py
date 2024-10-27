@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from dataclasses import dataclass
 
-from toy_record import Manager, Record
+from backend.toy_record_mgr import Manager, Record
 import matplotlib.pyplot as plt
 
 
@@ -65,6 +65,7 @@ def app():
         ax.set_title('Coins In & Toys Payout')
         ax.grid(True)
         st.pyplot(fig)
+        plt.close(fig)
         with st.expander("Detail Records", expanded=False):
             st.dataframe(df1)
     with cols[1]:
@@ -78,6 +79,7 @@ def app():
         ax.set_ylim(0, 15)
         ax.grid(True)
         st.pyplot(fig)
+        plt.close(fig)
         with st.expander("Detail Records", expanded=False):
             st.dataframe(df2)
 

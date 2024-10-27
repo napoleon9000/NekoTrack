@@ -1,7 +1,8 @@
 from typing import Optional
 from dataclasses import dataclass
 from tinydb import Query
-from toy_record_db import DB
+from db.toy_record_db import BlobDB
+from db.firestore import FirestoreDB
 from io import BytesIO
 import streamlit as st
 import uuid
@@ -9,6 +10,7 @@ from dataclasses import field
 from datetime import datetime
 import pandas as pd
 import logging
+from dataclasses import asdict
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +59,8 @@ def get_image_by_path(path, _db):
 
 class Manager:
     def __init__(self, env):
-        self.db = DB(env)
-        self.machines_table = self.db.table('machines')
-        self.records_table = self.db.table('records')
+        self.blob_db = BlobDB(env)
+        self.firestore_db = FirestoreDB(env)
 
     def create_machine(self, machine: Machine, image: BytesIO):
         logger.info("create_machine")
@@ -67,56 +68,44 @@ class Manager:
         if image is not None:
             # upload image to blob storage
             image_path = f"images/machines/{machine.id}.jpg"
-            self.db.upload_file(image, image_path, compress=True)
+            self.blob_db.upload_file(image, image_path, compress=True)
             machine.image = image_path
         
-        self.machines_table.upsert(machine.__dict__, Query().id == machine.id)
-        self.db.save()
+        self.firestore_db.create_machine(asdict(machine))
 
     def get_all_machines(self):
-        return self.machines_table.all()
+        return self.firestore_db.get_all_machines()
 
     def get_all_machines_obj(self):
         machines = self.get_all_machines()
-        res = []
-        for machine in machines:
-            if 'doc_id' in machine:
-                del machine['doc_id']
-            machine_obj = Machine(**machine)
-            res.append(machine_obj)
-
-        return res
+        return [Machine(**machine) for machine in machines]
 
     def get_image_by_machine_id(self, machine_id):
         machine = self.get_machine_by_id(machine_id)
         path = machine['image']
         if path is None:
             return None
-        image = get_image_by_path(path, self.db)
+        image = get_image_by_path(path, self.blob_db)
         return image
 
     def get_machine_by_id(self, machine_id):
-        return self.machines_table.get(Query().id == machine_id)
+        return self.firestore_db.get_machine_by_id(machine_id)
 
     def get_machine_obj_by_id(self, machine_id):
         machine = self.get_machine_by_id(machine_id)
-        if 'doc_id' in machine.keys():
-            del machine['doc_id']
-        return Machine(**machine)
+        return Machine(**machine) if machine else None
 
     def update_machine(self, machine_id, machine):
-        res = self.machines_table.upsert(machine, Query().id == machine_id)
-        self.db.save()
+        self.firestore_db.update_machine(machine_id, machine)
 
     def delete_machine(self, machine_id):
         machine = self.get_machine_by_id(machine_id)
-        self.machines_table.remove(Query().id == machine_id)
+        self.firestore_db.delete_machine(machine_id)
         if machine['image'] is not None:
-            self.db.delete_file(machine['image'])
-        self.db.save()
+            self.blob_db.delete_file(machine['image'])
 
     def create_record(self, record: Record):
-        self.records_table.upsert(record.__dict__, (Query().machine_id == record.machine_id) & (Query().date == record.date))
+        self.firestore_db.create_record(asdict(record))
 
         # update machine parameters
         machine_id = record.machine_id
@@ -126,26 +115,27 @@ class Manager:
         machine['param_weak_strength'] = record.param_weak_strength
         machine['param_award_interval'] = record.param_award_interval
         machine['param_mode'] = record.param_mode
-        self.update_machine(machine_id, machine)   # db saved
+        self.update_machine(machine_id, machine)
 
     def get_all_records(self):
-        return self.records_table.all()
+        return self.firestore_db.get_all_records()
 
     def get_all_records_df(self):
         records = self.get_all_records()
-        df = pd.DataFrame(records)
-        return df
+        return pd.DataFrame(records)
 
     def get_records_by_machine_id(self, machine_id):
-        keys = ['date', 'coins_in', 'toys_payout', 'param_strong_strength', 'param_medium_strength', 'param_weak_strength', 'param_award_interval', 'param_mode', 'notes']
-        records = self.records_table.search(Query().machine_id == machine_id)
+        keys = ['date', 'coins_in', 'toys_payout', 'param_strong_strength', 
+                'param_medium_strength', 'param_weak_strength', 
+                'param_award_interval', 'param_mode', 'notes']
+        records = self.firestore_db.get_records_by_machine_id(machine_id)
         df = pd.DataFrame(records)
         # sort by date
-        df = df.sort_values(by='date', ascending=True)
-
+        df = df.sort_values(by='date', ascending=False)
         return df[keys]
 
-    
+    def save_record(self, record: Record):
+        self.firestore_db.save_record(asdict(record))
 
     def get_all_machines_payout_rate(self):
         machines = self.get_all_machines_obj()
@@ -243,6 +233,8 @@ class Manager:
             ax.grid(True)
             st.pyplot(fig)
             st.write('coins in & toys payout')
+            # close the plot
+            plt.close(fig)
         
         analyze_result_df = pd.DataFrame(analyze_result)
         analyze_result_df['date'] = pd.to_datetime(analyze_result_df['date'])
@@ -257,6 +249,7 @@ class Manager:
             ax.grid(True)
             st.pyplot(fig)
             st.write('payout rate')
+            plt.close(fig)
 
     def plot_overall_analyze_result(self, all_results):
         n_days_to_plot = 30
@@ -290,13 +283,14 @@ class Manager:
 
         # for plot
         df_all = pd.DataFrame(data_by_date).T.reset_index()
-        df1 = df_all[['daily_coins_in', 'daily_toys_payout']]
-        df1.loc[:, 'date'] = all_dates.values
-        df2 = df_all[['daily_payout_rate']]
-        df2.loc[:, 'date'] = all_dates.values
+        df1 = pd.DataFrame({
+            'daily_coins_in': df_all['daily_coins_in'],
+            'daily_toys_payout': df_all['daily_toys_payout'],
+            'date': all_dates.values
+        })
+        df2 = pd.DataFrame({
+            'daily_payout_rate': df_all['daily_payout_rate'],
+            'date': all_dates.values
+        })
 
         return df1, df2
-
-    def save_record(self, record: Record):
-        self.records_table.upsert(record.__dict__, Query().id == record.id)
-        self.db.save()

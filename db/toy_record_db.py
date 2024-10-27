@@ -20,7 +20,7 @@ db_path = {
 }
 
 
-class DB:
+class BlobDB:
     def __init__(self, env):
         self.env = env
         self.bucket = "nekoconnect-database"
@@ -31,22 +31,6 @@ class DB:
         self.db = TinyDB(storage=MemoryStorage)
         self.db.storage.read = lambda: db_dict
         self.users_table = self.db.table('users')
-        self.check_data_integrity()
-
-    def check_data_integrity(self):
-        users = self.users_table.all()
-        for user in users:
-            modified = False
-            if 'credits' not in user:
-                user['credits'] = 0
-                modified = True
-            if 'notes' not in user:
-                user['notes'] = ""
-                modified = True
-            if modified:
-                self.users_table.upsert(user, Query().phone_number == user['phone_number'])
-                
-        self.save()
 
     def table(self, table_name):
         return self.db.table(table_name)

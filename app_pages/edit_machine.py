@@ -3,7 +3,7 @@ import pandas as pd
 from dataclasses import dataclass
 import logging
 
-from toy_record import Manager, Machine
+from backend.toy_record_mgr import Manager, Machine
 from io import BytesIO
 
 logger = logging.getLogger(__name__)

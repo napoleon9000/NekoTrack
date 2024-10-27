@@ -3,7 +3,7 @@ import pandas as pd
 from dataclasses import dataclass
 import numpy as np
 
-from toy_record import Manager, Record
+from backend.toy_record_mgr import Manager, Record
 import matplotlib.pyplot as plt
 
 def show_list(data, all_machines):

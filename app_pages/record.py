@@ -6,7 +6,7 @@ import logging
 import pytz
 from datetime import datetime
 import time
-from toy_record import Manager, Record
+from backend.toy_record_mgr import Manager, Record
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,12 @@ def save_record(machine_id, manager: Manager):
     param_award_interval = st.session_state[f"param_award_interval_{machine_id}"]
     param_mode = st.session_state[f"param_mode_{machine_id}"]
     notes = st.session_state[f"notes_{machine_id}"]
+    id = f"{date_str}#{machine_id}"
     if coins_in == 0 or toys_payout == 0:
         st.error("Coins in and toys payout cannot be 0! Please check your input and try again.")
     try:
         record = Record(
+            id=id,
             date=date_str,
             machine_id=machine_id,
             coins_in=coins_in,
