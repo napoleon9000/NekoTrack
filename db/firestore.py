@@ -4,7 +4,6 @@ from typing import Dict, Any, List
 from google.cloud.firestore import FieldFilter
 import streamlit as st
 
-db_client = firestore.Client.from_service_account_json('.streamlit/firestore_key.json')
 
 class FirestoreDB:
     def __init__(self, env):
