@@ -2,15 +2,23 @@ from google.cloud import firestore
 from models.users import User
 from typing import Dict, Any, List
 from google.cloud.firestore import FieldFilter
+import streamlit as st
 
 db_client = firestore.Client.from_service_account_json('.streamlit/firestore_key.json')
 
 class FirestoreDB:
     def __init__(self, env):
-        self.db = firestore.Client.from_service_account_json(
-            '.streamlit/firestore_key.json',
-            database=f'nekoconnect-{env}-db'
-        )
+        if env == 'dev':
+            database_name = 'nekoconnect-dev-db'
+        elif env == 'cloud' or env == 'prod':
+            database_name = 'nekoconnect-db'
+        config = st.secrets['Firestore']
+        project_name = config['project_id']
+        del config['project_id']
+        credentials = service_account.Credentials.from_service_account_info(config)
+        self.db = firestore.Client(credentials=credentials, database=database_name, project=project_name)
+
+
         self.users_collection = self.db.collection('users')
         self.machines_collection = self.db.collection('machines')
         self.records_collection = self.db.collection('records')
