@@ -3,7 +3,7 @@ from models.users import User
 from typing import Dict, Any, List
 from google.cloud.firestore import FieldFilter
 import streamlit as st
-
+from google.oauth2 import service_account
 
 class FirestoreDB:
     def __init__(self, env):
