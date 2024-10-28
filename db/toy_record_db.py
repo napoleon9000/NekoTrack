@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO)
 
 db_path = {
     "prod": "nekoconnect-database/toy_record_db.json",
+    "cloud": "nekoconnect-database/toy_record_db.json",
     "dev": "nekoconnect-database/toy_record_db_dev.json",
 }
 
