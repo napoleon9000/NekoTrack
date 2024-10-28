@@ -74,7 +74,12 @@ class Manager:
         self.firestore_db.create_machine(asdict(machine))
 
     def get_all_machines(self):
-        return self.firestore_db.get_all_machines()
+        all_machines = self.firestore_db.get_all_machines()
+        print(all_machines)
+        # sort by id, only keep the numbers in the id
+        numbers = '1234567890'
+        all_machines = sorted(all_machines, key=lambda x: int(''.join(filter(lambda c: c in numbers, x['id']))))
+        return all_machines
 
     def get_all_machines_obj(self):
         machines = self.get_all_machines()
