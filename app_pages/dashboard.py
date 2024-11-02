@@ -30,8 +30,6 @@ def app():
         col3, col4 = st.columns([1, 1])
         with col3:  
             st.write(f'Welcome *{name}*')
-        with col4:
-            if env != 'dev':    
-                authenticator.logout('Logout', 'main')
+        
     st.markdown("---")
 
