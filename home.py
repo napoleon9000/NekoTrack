@@ -21,6 +21,9 @@ from app_pages.record import app as record_page
 from app_pages.record_analyze import app as record_analyze_page
 from app_pages.edit_machine import app as edit_machine_page
 from app_pages.leaderboard import app as leaderboard_page
+from app_pages.dashboard import app as dashboard_page
+from app_pages.add_order import app as add_order_page
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -66,86 +69,90 @@ if authentication_status:
         st.session_state['page'] = page
 
     st.sidebar.button("Home", on_click=switch_page, args=('home',), use_container_width=True)
-    st.sidebar.button("Add New User", on_click=switch_page, args=('add_new_user',), use_container_width=True)
-    st.sidebar.button("Edit User", on_click=switch_page, args=('edit_user',), use_container_width=True)
+    # st.sidebar.button("Add New User", on_click=switch_page, args=('add_new_user',), use_container_width=True)
+    # st.sidebar.button("Edit User", on_click=switch_page, args=('edit_user',), use_container_width=True)
+    st.sidebar.divider()
     st.sidebar.button("Machines", on_click=switch_page, args=('machines',), use_container_width=True)
+    st.sidebar.button("Edit Machine", on_click=switch_page, args=('edit_machine',), use_container_width=True)
+    st.sidebar.divider()
     st.sidebar.button("Add Record", on_click=switch_page, args=('record',), use_container_width=True)
     st.sidebar.button("Record Analyze", on_click=switch_page, args=('record_analyze',), use_container_width=True)
     st.sidebar.button("Leaderboard", on_click=switch_page, args=('leaderboard',), use_container_width=True)
-    st.sidebar.button("Edit Machine", on_click=switch_page, args=('edit_machine',), use_container_width=True)
+    st.sidebar.divider()
+    st.sidebar.button("Add Order", on_click=switch_page, args=('add_order',), use_container_width=True)
 
 
     def home_page():
         # Page functionality
-            col1, col2 = st.columns([3, 1])
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if env == 'dev':
+                st.title(f"NekoTrack - {env}")
+            else:
+                st.title(f"NekoTrack")
+        with col2:
+            col3, col4 = st.columns([1, 1])
+            with col3:  
+                st.write(f'Welcome *{name}*')
+            with col4:
+                if env != 'dev':    
+                    authenticator.logout('Logout', 'main')
+        st.markdown("---")
+        st.markdown("### All Users")
+
+        # find all users
+        all_info = mgr.display_user_info()
+        if all_info is None:
+            st.info("No users found. Please add a new user.")
+            return
+        
+        # search bar
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            search_phone = st.text_input("Enter phone number to search user")
+        with col2:
+            if st.button("Clear", use_container_width=True):
+                search_phone = ""
+        if search_phone:
+            all_info = all_info[all_info['phone_number'].str.contains(search_phone, case=False, na=False)]
+            all_info = all_info.reset_index(drop=True)
+        
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 1, 5])
+        with col1:
+            st.button('Refresh')
+        with col2:
+            db_json = mgr.download_all_data()
+            st.download_button(
+                label="Download data",
+                data=db_json,
+                file_name=f"nekoconnect_users_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json",
+                mime="application/json",
+            )
+
+        def on_edit_click(index):
+            st.session_state['selected_user'] = all_info.iloc[index]
+            st.session_state['page'] = 'edit_user'
+
+
+        def on_delete_click(index):
+            # double check to confirm deletion
+            phone_number = all_info.iloc[index]['phone_number']
+            mgr.delete_user(phone_number)
+
+        for index, row in all_info.iterrows():
+            col1, col2, col3 = st.columns([5, 1, 1])
             with col1:
-                if env == 'dev':
-                    st.title(f"NekoTrack - {env}")
-                else:
-                    st.title(f"NekoTrack")
+                row = pd.DataFrame(row).T
+                st.dataframe(row, use_container_width=True)
             with col2:
-                col3, col4 = st.columns([1, 1])
-                with col3:  
-                    st.write(f'Welcome *{name}*')
-                with col4:
-                    if env != 'dev':    
-                        authenticator.logout('Logout', 'main')
-            st.markdown("---")
-            st.markdown("### All Users")
-
-            # find all users
-            all_info = mgr.display_user_info()
-            if all_info is None:
-                st.info("No users found. Please add a new user.")
-                return
-            
-            # search bar
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                search_phone = st.text_input("Enter phone number to search user")
-            with col2:
-                if st.button("Clear", use_container_width=True):
-                    search_phone = ""
-            if search_phone:
-                all_info = all_info[all_info['phone_number'].str.contains(search_phone, case=False, na=False)]
-                all_info = all_info.reset_index(drop=True)
-            
-            st.markdown("---")
-            col1, col2, col3 = st.columns([1, 1, 5])
-            with col1:
-                st.button('Refresh')
-            with col2:
-                db_json = mgr.download_all_data()
-                st.download_button(
-                    label="Download data",
-                    data=db_json,
-                    file_name=f"nekoconnect_users_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json",
-                    mime="application/json",
-                )
-
-            def on_edit_click(index):
-                st.session_state['selected_user'] = all_info.iloc[index]
-                st.session_state['page'] = 'edit_user'
-
-
-            def on_delete_click(index):
-                # double check to confirm deletion
-                phone_number = all_info.iloc[index]['phone_number']
-                mgr.delete_user(phone_number)
-
-            for index, row in all_info.iterrows():
-                col1, col2, col3 = st.columns([5, 1, 1])
-                with col1:
-                    row = pd.DataFrame(row).T
-                    st.dataframe(row, use_container_width=True)
-                with col2:
-                    st.button("Edit", key=f"edit_{index}", use_container_width=True, on_click=on_edit_click, args=(index,))
-                with col3:
-                    st.button("Delete", key=f"delete_{index}", use_container_width=True, on_click=on_delete_click, args=(index,))
+                st.button("Edit", key=f"edit_{index}", use_container_width=True, on_click=on_edit_click, args=(index,))
+            with col3:
+                st.button("Delete", key=f"delete_{index}", use_container_width=True, on_click=on_delete_click, args=(index,))
 
 
     if st.session_state['page'] == 'home':
-        home_page()
+        dashboard_page()
 
     elif st.session_state['page'] == 'edit_user':
         edit_user_page()
@@ -170,6 +177,9 @@ if authentication_status:
 
     elif st.session_state['page'] == 'leaderboard':
         leaderboard_page()
+
+    elif st.session_state['page'] == 'add_order':
+        add_order_page()
 
 elif authentication_status == False:
     st.error('Username/password is incorrect')

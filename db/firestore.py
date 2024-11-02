@@ -4,6 +4,8 @@ from typing import Dict, Any, List
 from google.cloud.firestore import FieldFilter
 import streamlit as st
 from google.oauth2 import service_account
+from datetime import datetime, date
+from enum import Enum
 
 class FirestoreDB:
     def __init__(self, env):
@@ -73,4 +75,31 @@ class FirestoreDB:
     def save_record(self, record_dict: Dict[str, Any]):
         self.records_collection.document(record_dict['id']).set(record_dict)
 
+    # Order operations
+    def _convert_for_firestore(self, document_dict: Dict[str, Any]) -> Dict[str, Any]:
+        converted_dict = {}
+        for key, value in document_dict.items():
+            if isinstance(value, date):
+                converted_dict[key] = datetime.combine(value, datetime.min.time())
+            elif isinstance(value, Enum):  # Handle Enum values
+                converted_dict[key] = value.value
+            else:
+                converted_dict[key] = value
+        return converted_dict
 
+    def create_document(self, collection_name: str, document_dict: Dict[str, Any]):
+        converted_dict = self._convert_for_firestore(document_dict)
+        self.db.collection(collection_name).document(converted_dict['id']).set(converted_dict)
+
+    def get_document(self, collection_name: str, document_id: str) -> Dict[str, Any]:
+        doc = self.db.collection(collection_name).document(document_id).get()
+        return doc.to_dict() if doc.exists else None
+
+    def update_document(self, collection_name: str, document_id: str, updates: Dict[str, Any]):
+        self.db.collection(collection_name).document(document_id).update(updates)
+
+    def delete_document(self, collection_name: str, document_id: str):
+        self.db.collection(collection_name).document(document_id).delete()
+
+    def get_collection(self, collection_name: str) -> List[Dict[str, Any]]:
+        return [doc.to_dict() for doc in self.db.collection(collection_name).stream()]

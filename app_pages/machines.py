@@ -25,7 +25,9 @@ def app():
     with col1:
         st.title("Machines")
     with col2:
-        st.button("Refresh")
+        if st.button("Refresh"):
+            st.cache_data.clear()
+            st.rerun()
     st.markdown("---")
 
     # show all machines and images

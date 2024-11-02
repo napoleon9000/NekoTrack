@@ -1,8 +1,9 @@
 from typing import Optional
 from dataclasses import dataclass
 from tinydb import Query
-from db.toy_record_db import BlobDB
-from db.firestore import FirestoreDB
+from models.machines import Record, Machine
+from backend.base_manager import Manager as BaseManager
+from utils import get_image_by_path
 from io import BytesIO
 import streamlit as st
 import uuid
@@ -15,52 +16,51 @@ from dataclasses import asdict
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Record:
-    machine_id: str
-    coins_in: int
-    toys_payout: int
-    param_strong_strength: float
-    param_medium_strength: float
-    param_weak_strength: float
-    param_award_interval: int
-    param_mode: str = ''
-    notes: Optional[str] = None
-    date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+# @dataclass
+# class Record:
+#     machine_id: str
+#     coins_in: int
+#     toys_payout: int
+#     param_strong_strength: float
+#     param_medium_strength: float
+#     param_weak_strength: float
+#     param_award_interval: int
+#     param_mode: str = ''
+#     notes: Optional[str] = None
+#     date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+#     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
-@dataclass
-class Machine:
-    name: str
-    location: str
-    status: str
-    param_strong_strength: float
-    param_medium_strength: float
-    param_weak_strength: float
-    param_award_interval: int
-    param_mode: str = ''
-    id: str = None
-    notes: Optional[str] = None
-    image: Optional[str] = None   # path to image
+# @dataclass
+# class Machine:
+#     name: str
+#     location: str
+#     status: str
+#     param_strong_strength: float
+#     param_medium_strength: float
+#     param_weak_strength: float
+#     param_award_interval: int
+#     param_mode: str = ''
+#     id: str = None
+#     notes: Optional[str] = None
+#     image: Optional[str] = None   # path to image
 
-    def get_params(self):
-        """Summary of the machine parameters"""
-        try:
-            results = f'{self.param_strong_strength}, {self.param_medium_strength}, {self.param_weak_strength} | {self.param_award_interval}, {self.param_mode}'
-            return results
-        except Exception as e:
-            return None
+#     def get_params(self):
+#         """Summary of the machine parameters"""
+#         try:
+#             results = f'{self.param_strong_strength}, {self.param_medium_strength}, {self.param_weak_strength} | {self.param_award_interval}, {self.param_mode}'
+#             return results
+#         except Exception as e:
+#             return None
 
-@st.cache_data
-def get_image_by_path(path, _db):
-    image = _db.download_file(path)
-    return image
+# @st.cache_data
+# def get_image_by_path(path, _db):
+#     image = _db.download_file(path)
+#     return image
 
 
-class Manager:
+class Manager(BaseManager):
     def __init__(self, env):
-        self.blob_db = BlobDB(env)
-        self.firestore_db = FirestoreDB(env)
+        super().__init__(env)
 
     def create_machine(self, machine: Machine, image: BytesIO):
         logger.info("create_machine")
@@ -75,7 +75,6 @@ class Manager:
 
     def get_all_machines(self):
         all_machines = self.firestore_db.get_all_machines()
-        print(all_machines)
         # sort by id, only keep the numbers in the id
         numbers = '1234567890'
         all_machines = sorted(all_machines, key=lambda x: int(''.join(filter(lambda c: c in numbers, x['id']))))
