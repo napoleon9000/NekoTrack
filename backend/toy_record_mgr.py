@@ -30,9 +30,10 @@ class Manager(BaseManager):
         df = pd.DataFrame(records)
         if df.empty:
             return None
-        df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(df['date']).dt.strftime("%Y-%m-%d")
         df = df.sort_values(by='date', ascending=False)
-        return df
+        selected_columns = ['date', 'POS_machine', 'auto_machine', 'total']
+        return df[selected_columns]
 
 
     def create_machine(self, machine: Machine, image: BytesIO):
