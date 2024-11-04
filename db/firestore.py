@@ -6,6 +6,10 @@ import streamlit as st
 from google.oauth2 import service_account
 from datetime import datetime, date
 from enum import Enum
+from models.machines import IncomeRecord
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FirestoreDB:
     def __init__(self, env):
@@ -23,6 +27,14 @@ class FirestoreDB:
         self.users_collection = self.db.collection('users')
         self.machines_collection = self.db.collection('machines')
         self.records_collection = self.db.collection('records')
+        self.income_records_collection = self.db.collection('income_records')
+    
+    def create_income_record(self, record: IncomeRecord):
+        logger.info(record)
+        self.income_records_collection.document(record['date']).set(record)
+
+    def get_all_income_records(self):
+        return [doc.to_dict() for doc in self.income_records_collection.stream()]
 
     def create_user(self, user: User):
         self.users_collection.document(user.phone_number).set(user.to_dict())

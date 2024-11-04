@@ -23,21 +23,6 @@ def app():
                 mgr.edit_user(phone_number, name=name, credits=credits, tokens=tokens, notes=notes)
                 st.success(f"User {phone_number} has been successfully updated!")
             st.markdown("---")
-            # col1, col2 = st.columns(2)
-            # with col2:
-            #     st.markdown("##### Redemption History")
-            #     st.dataframe(redemption_history_to_df(user.redemption_history))
-            # with col1:
-            #     # add redeem rewards
-            #     st.markdown("##### Redeem Rewards")
-            #     item = st.text_input("Item Name")
-            #     credits = st.number_input("Item Value", min_value=0, step=1)
-            #     if st.button("Redeem"):
-            #         try:
-            #             mgr.record_redemption(phone_number, item, credits)
-            #             st.success(f"User {phone_number} has been successfully updated!")
-            #         except ValueError as e:
-            #             st.error(e)
 
         else:
             st.error("User not found")

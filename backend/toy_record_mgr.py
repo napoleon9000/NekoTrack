@@ -12,55 +12,28 @@ from datetime import datetime
 import pandas as pd
 import logging
 from dataclasses import asdict
-
+from models.machines import IncomeRecord
 logger = logging.getLogger(__name__)
-
-
-# @dataclass
-# class Record:
-#     machine_id: str
-#     coins_in: int
-#     toys_payout: int
-#     param_strong_strength: float
-#     param_medium_strength: float
-#     param_weak_strength: float
-#     param_award_interval: int
-#     param_mode: str = ''
-#     notes: Optional[str] = None
-#     date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-#     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-
-# @dataclass
-# class Machine:
-#     name: str
-#     location: str
-#     status: str
-#     param_strong_strength: float
-#     param_medium_strength: float
-#     param_weak_strength: float
-#     param_award_interval: int
-#     param_mode: str = ''
-#     id: str = None
-#     notes: Optional[str] = None
-#     image: Optional[str] = None   # path to image
-
-#     def get_params(self):
-#         """Summary of the machine parameters"""
-#         try:
-#             results = f'{self.param_strong_strength}, {self.param_medium_strength}, {self.param_weak_strength} | {self.param_award_interval}, {self.param_mode}'
-#             return results
-#         except Exception as e:
-#             return None
-
-# @st.cache_data
-# def get_image_by_path(path, _db):
-#     image = _db.download_file(path)
-#     return image
 
 
 class Manager(BaseManager):
     def __init__(self, env):
         super().__init__(env)
+
+    def create_income_record(self, date: str, POS_machine: int, auto_machine: int):
+        record = IncomeRecord(date=date, POS_machine=POS_machine, auto_machine=auto_machine, total=POS_machine+auto_machine)
+        logger.info(record)
+        self.firestore_db.create_income_record(asdict(record))
+    
+    def get_all_income_records(self):
+        records = self.firestore_db.get_all_income_records()
+        df = pd.DataFrame(records)
+        if df.empty:
+            return None
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.sort_values(by='date', ascending=False)
+        return df
+
 
     def create_machine(self, machine: Machine, image: BytesIO):
         logger.info("create_machine")

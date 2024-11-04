@@ -38,3 +38,11 @@ class Machine:
             return results
         except Exception as e:
             return None
+
+@dataclass
+class IncomeRecord:
+    POS_machine: int
+    auto_machine: int
+    total: int
+    date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    

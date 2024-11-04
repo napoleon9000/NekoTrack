@@ -49,8 +49,27 @@ def save_record(machine_id, manager: Manager):
 
 
 def app():
+    env = st.secrets['ENV']['ENV']
+    manager = Manager(env)
+
     # today's date in central time
     today = datetime.now(pytz.timezone('US/Central'))
+    col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
+    with st.form(key='income_record_form', border=False):
+        with col1:
+            st.title("Income Record")
+        with col2:
+            date = st.date_input("Date", key="date2", value=today)
+        with col3:
+            post_income = st.number_input("POS Income", key="post_income", value=0)
+        with col4:
+            auto_income = st.number_input("Auto Machine Income", key="auto_income", value=0)
+        if st.form_submit_button("Save"):
+            manager.create_income_record(date=date.strftime("%Y-%m-%d"), POS_machine=post_income, auto_machine=auto_income)
+            st.success("Income record saved successfully!")
+    
+    st.markdown("---")
+
     col1, col2, _ = st.columns([2, 2, 4])
     with col1:
         st.title("Toys Record")
@@ -59,8 +78,6 @@ def app():
     st.markdown("---")
 
     # show all machines and images
-    env = st.secrets['ENV']['ENV']
-    manager = Manager(env)
     machines = manager.get_all_machines()
     
 

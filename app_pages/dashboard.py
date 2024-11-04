@@ -1,4 +1,5 @@
 import streamlit as st
+from backend.toy_record_mgr import Manager as ToyRecordManager
 
 st_secrets = dict(st.secrets)
 credentials = st.secrets["credentials"].to_dict()
@@ -23,13 +24,17 @@ def app():
     col1, col2 = st.columns([3, 1])
     with col1:
         if env == 'dev':
-            st.title(f"NekoTrack - {env}")
+            st.title(f"NekoTrack - Dashboard - {env}")
         else:
-            st.title(f"NekoTrack")
+            st.title(f"NekoTrack - Dashboard")
     with col2:
         col3, col4 = st.columns([1, 1])
         with col3:  
             st.write(f'Welcome *{name}*')
+
+    manager = ToyRecordManager(env)
+    records = manager.get_all_income_records()
+    st.dataframe(records)
         
     st.markdown("---")
 

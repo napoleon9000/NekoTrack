@@ -18,6 +18,7 @@ class OrderStatus(Enum):
 @dataclass
 class Order:
     image_path: str = None
+    name: str = None
     seller: str = None 
     status: OrderStatus = None
     tracking_number: str = None

@@ -27,7 +27,10 @@ class OrderManager(BaseManager):
         self.firestore_db.delete_document('orders', order_id)
 
     def get_all_orders(self):
-        return self.firestore_db.get_collection('orders')
+        all_orders = self.firestore_db.get_collection('orders')
+        # sort by delivery date
+        all_orders.sort(key=lambda x: x['expected_deliver_date'])
+        return all_orders
 
     def create_inventory(self, inventory, image=None):
         if image is not None:

@@ -23,7 +23,8 @@ from app_pages.edit_machine import app as edit_machine_page
 from app_pages.leaderboard import app as leaderboard_page
 from app_pages.dashboard import app as dashboard_page
 from app_pages.add_order import app as add_order_page
-
+from app_pages.order_status import app as order_status_page
+from app_pages.edit_order import app as edit_order_page
 
 logging.basicConfig(level=logging.INFO)
 
@@ -73,13 +74,14 @@ if authentication_status:
     # st.sidebar.button("Edit User", on_click=switch_page, args=('edit_user',), use_container_width=True)
     st.sidebar.divider()
     st.sidebar.button("Machines", on_click=switch_page, args=('machines',), use_container_width=True)
-    st.sidebar.button("Edit Machine", on_click=switch_page, args=('edit_machine',), use_container_width=True)
+    # st.sidebar.button("Edit Machine", on_click=switch_page, args=('edit_machine',), use_container_width=True)
     st.sidebar.divider()
     st.sidebar.button("Add Record", on_click=switch_page, args=('record',), use_container_width=True)
     st.sidebar.button("Record Analyze", on_click=switch_page, args=('record_analyze',), use_container_width=True)
     st.sidebar.button("Leaderboard", on_click=switch_page, args=('leaderboard',), use_container_width=True)
     st.sidebar.divider()
     st.sidebar.button("Add Order", on_click=switch_page, args=('add_order',), use_container_width=True)
+    st.sidebar.button("Order Status", on_click=switch_page, args=('order_status',), use_container_width=True)
 
 
     def home_page():
@@ -180,6 +182,12 @@ if authentication_status:
 
     elif st.session_state['page'] == 'add_order':
         add_order_page()
+
+    elif st.session_state['page'] == 'order_status':
+        order_status_page()
+
+    elif st.session_state['page'] == 'edit_order':
+        edit_order_page()
 
 elif authentication_status == False:
     st.error('Username/password is incorrect')

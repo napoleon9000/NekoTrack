@@ -3,6 +3,9 @@ from backend.order_mgr import OrderManager as Manager
 from models.orders import Order, OrderStatus, PlushieType
 from io import BytesIO
 
+import logging
+logger = logging.getLogger(__name__)
+
 def create_order(order_id, manager: Manager):
     manager.create_order(order_id)
     st.success("Order created successfully")
@@ -23,7 +26,12 @@ def app():
             st.image(image, width=250)
     with col2:
         with st.form(key='create_order_form', border=False):
-            seller = st.text_input("Seller")
+            name = st.text_input("Name")
+            cols = st.columns(2)
+            with cols[0]:
+                seller = st.text_input("Seller")
+            with cols[1]:
+                preset_seller = st.selectbox("Preset Seller", [None, "Temu", "New York"])
             status = st.selectbox("Status", [status.value for status in OrderStatus])
             tracking_number = st.text_input("Tracking Number")
             amount = st.number_input("Amount", min_value=1, step=1)
@@ -36,7 +44,8 @@ def app():
 
             if st.form_submit_button("Save"):
                 new_order = Order(
-                    seller=seller,
+                    name=name,
+                    seller=preset_seller if not seller else seller,
                     status=OrderStatus(status),
                     tracking_number=tracking_number,
                     amount=amount,

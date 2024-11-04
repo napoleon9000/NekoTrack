@@ -1,4 +1,4 @@
-streamlit==1.37.1
+streamlit==1.39.0
 tinydb==4.8.0
 streamlit-authenticator==0.3.3
 gcsfs==2024.6.1
@@ -6,3 +6,4 @@ st-files-connection==0.1.0
 Pillow==10.4.0
 matplotlib==3.9.2
 google-cloud-firestore==2.19.0
+streamlit-nivo==0.1.8
