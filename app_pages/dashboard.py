@@ -22,7 +22,7 @@ def app():
         name = 'Dev'
         authentication_status = True
         username = 'nekoconnect'
-        
+
     col1, col2 = st.columns([3, 1])
     with col1:
         if env == 'dev':
@@ -36,7 +36,14 @@ def app():
 
     manager = ToyRecordManager(env)
     records = manager.get_all_income_records()
-    st.dataframe(records)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        with st.container(border=True):
+            st.markdown("### Income Records")
+            if records is not None:
+                st.dataframe(records)
+            else:
+                st.info("No income records yet")
         
     st.markdown("---")
 

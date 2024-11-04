@@ -22,7 +22,6 @@ class Manager(BaseManager):
 
     def create_income_record(self, date: str, POS_machine: int, auto_machine: int):
         record = IncomeRecord(date=date, POS_machine=POS_machine, auto_machine=auto_machine, total=POS_machine+auto_machine)
-        logger.info(record)
         self.firestore_db.create_income_record(asdict(record))
     
     def get_all_income_records(self):
@@ -37,8 +36,6 @@ class Manager(BaseManager):
 
 
     def create_machine(self, machine: Machine, image: BytesIO):
-        logger.info("create_machine")
-        logger.info(machine)
         if image is not None:
             # upload image to blob storage
             image_path = f"images/machines/{machine.id}.jpg"

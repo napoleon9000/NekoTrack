@@ -30,7 +30,6 @@ class FirestoreDB:
         self.income_records_collection = self.db.collection('income_records')
     
     def create_income_record(self, record: IncomeRecord):
-        logger.info(record)
         self.income_records_collection.document(record['date']).set(record)
 
     def get_all_income_records(self):
