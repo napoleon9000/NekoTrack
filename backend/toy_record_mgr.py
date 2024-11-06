@@ -21,7 +21,7 @@ class Manager(BaseManager):
         super().__init__(env)
 
     def create_income_record(self, date: str, POS_machine: int, auto_machine: int):
-        record = IncomeRecord(date=date, POS_machine=POS_machine, auto_machine=auto_machine, total=POS_machine+auto_machine)
+        record = IncomeRecord(date=date, POS_machine=POS_machine, auto_machine=auto_machine, total=0)
         self.firestore_db.create_income_record(asdict(record))
     
     def get_all_income_records(self):
@@ -39,6 +39,7 @@ class Manager(BaseManager):
             else:
                 diff_records.append(auto_machine_records[i] - auto_machine_records[i-1])
         df['auto_machine'] = pd.Series(diff_records)
+        df['total'] = df['POS_machine'] + df['auto_machine']
         selected_columns = ['date', 'POS_machine', 'auto_machine', 'total']
         return df[selected_columns]
 
