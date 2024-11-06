@@ -16,43 +16,15 @@ def app():
     manager = Manager(env)
     machines = manager.get_all_machines_obj()
     all_results = []
-    
-    st.markdown("#### Individual Machine Analysis")
     for machine in machines:
-        cols = st.columns([1, 8])
-        machine_id = machine.id
-        analyze_result, all_time_payout_rate, last_3_days_payout_rate = manager.calculate_machine_payout_rate(machine_id)
-        all_results.append(analyze_result)
-        
-        with cols[0]:
-            machine_image = manager.get_image_by_machine_id(machine_id)
-            name = machine.name
-            location = machine.location
-            st.image(machine_image, width=150)
-            if name is not None and name != "":
-                st.markdown(f"**Name:** {name}")
-            else:
-                st.markdown(f"**id:** {machine_id}")
-            if location is not None and location != "":
-                st.markdown(f"**Location:** {location}")
-            st.markdown(f"**All Time Payout Rate:** {all_time_payout_rate:.2f}")
-            st.markdown(f"**3-Day Payout Rate:** {last_3_days_payout_rate:.2f}") 
-            st.markdown(f"**Last Payout Rate:** {analyze_result['daily_payout_rate'].tolist()[-1]:.2f}") 
-            st.markdown(f"**Machine Params:** {machine.get_params()}")
-
-        with cols[1]:
-            manager.plot_analyze_result(analyze_result)
-        
-        with st.expander("Detail Records", expanded=False):
-            df = manager.get_records_by_machine_id(machine_id)
-            st.dataframe(df)
-        
-        st.markdown("---")
-
+        analyze_result, all_time_payout_rate, last_3_days_payout_rate = manager.calculate_machine_payout_rate(machine.id)
+        all_results.append((analyze_result, all_time_payout_rate, last_3_days_payout_rate))
+    all_analyze_results = [r[0] for r in all_results]
+    
     st.markdown("#### Overall Analysis")
 
     # plot
-    df1, df2 = manager.plot_overall_analyze_result(all_results)
+    df1, df2 = manager.plot_overall_analyze_result(all_analyze_results)
 
     cols = st.columns(2)
     with cols[0]:
@@ -82,6 +54,39 @@ def app():
         plt.close(fig)
         with st.expander("Detail Records", expanded=False):
             st.dataframe(df2)
+    
+    st.markdown("#### Individual Machine Analysis")
+    for i, machine in enumerate(machines):
+        cols = st.columns([1, 8])
+        machine_id = machine.id
+        analyze_result, all_time_payout_rate, last_3_days_payout_rate = all_results[i]
+        
+        with cols[0]:
+            machine_image = manager.get_image_by_machine_id(machine_id)
+            name = machine.name
+            location = machine.location
+            st.image(machine_image, width=150)
+            if name is not None and name != "":
+                st.markdown(f"**Name:** {name}")
+            else:
+                st.markdown(f"**id:** {machine_id}")
+            if location is not None and location != "":
+                st.markdown(f"**Location:** {location}")
+            st.markdown(f"**All Time Payout Rate:** {all_time_payout_rate:.2f}")
+            st.markdown(f"**3-Day Payout Rate:** {last_3_days_payout_rate:.2f}") 
+            st.markdown(f"**Last Payout Rate:** {analyze_result['daily_payout_rate'].tolist()[-1]:.2f}") 
+            st.markdown(f"**Machine Params:** {machine.get_params()}")
+
+        with cols[1]:
+            manager.plot_analyze_result(analyze_result)
+        
+        with st.expander("Detail Records", expanded=False):
+            df = manager.get_records_by_machine_id(machine_id)
+            st.dataframe(df)
+        
+        st.markdown("---")
+
+    
 
 if __name__ == "__main__":
     app()
