@@ -31,7 +31,6 @@ class Manager(BaseManager):
             return None
         df['date'] = pd.to_datetime(df['date']).dt.strftime("%Y-%m-%d")
         df = df.sort_values(by='date', ascending=True)
-        st.dataframe(df)
         auto_machine_records = df['auto_machine'].tolist()
         diff_records = [auto_machine_records[0]]
         for i in range(1, len(auto_machine_records)):
