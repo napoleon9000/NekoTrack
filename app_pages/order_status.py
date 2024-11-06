@@ -66,8 +66,11 @@ def app():
         with cols[i]:
             st.markdown(f"### {selected_type.value}")
             selected_orders = [order for order in all_orders if order['plushie_type'] == selected_type.value]
-            st.write(get_date_amount_df(selected_orders))
-            for order in selected_orders:
-                render_order_card(order)
+            if len(selected_orders) == 0:
+                st.warning("No orders found")
+            else:
+                st.write(get_date_amount_df(selected_orders))
+                for order in selected_orders:
+                    render_order_card(order)
 
 
