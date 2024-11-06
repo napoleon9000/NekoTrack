@@ -30,7 +30,16 @@ class Manager(BaseManager):
         if df.empty:
             return None
         df['date'] = pd.to_datetime(df['date']).dt.strftime("%Y-%m-%d")
-        df = df.sort_values(by='date', ascending=False)
+        df = df.sort_values(by='date', ascending=True)
+        st.dataframe(df)
+        auto_machine_records = df['auto_machine'].tolist()
+        diff_records = [auto_machine_records[0]]
+        for i in range(1, len(auto_machine_records)):
+            if auto_machine_records[i] < auto_machine_records[i-1]:
+                diff_records.append(auto_machine_records[i])
+            else:
+                diff_records.append(auto_machine_records[i] - auto_machine_records[i-1])
+        df['auto_machine'] = pd.Series(diff_records)
         selected_columns = ['date', 'POS_machine', 'auto_machine', 'total']
         return df[selected_columns]
 
