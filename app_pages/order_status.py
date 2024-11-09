@@ -3,9 +3,19 @@ from backend.order_mgr import OrderManager
 from models.orders import PlushieType
 import pandas as pd
 
+env = st.secrets['ENV']['ENV']
+manager = OrderManager(env)
+
 def edit_order(order):
     st.session_state['selected_order_for_edit'] = order
     st.session_state['page'] = 'edit_order'
+
+def duplicate_order(order):
+    st.session_state['selected_order_for_duplicate'] = order
+    st.session_state['page'] = 'add_order'
+
+def delete_order(order):
+    manager.delete_order(order['id'])
 
 def render_order_card(order):
     default_image_map = {
@@ -34,7 +44,16 @@ def render_order_card(order):
             """)
             if order.get('notes'):
                 st.markdown(order['notes'])
+            
+        # Create buttons with horizontal layout
+        col1, col2, col3, col4 = st.columns([1, 1, 1, 1]) 
+        # Place buttons directly (they will be inline due to CSS)
+        with col2:
             st.button(key=f"edit_{id}", label="Edit", on_click=edit_order, args=[order])
+        with col3:
+            st.button(key=f"duplicate_{id}", label="Duplicate", on_click=duplicate_order, args=[order])
+        with col4:
+            st.button(key=f"delete_{id}", label="Delete", on_click=delete_order, args=[order])
 
 
 def get_date_amount_df(orders):
@@ -50,9 +69,6 @@ def get_date_amount_df(orders):
 
 def app():
     st.title("Order Status") 
-
-    env = st.secrets['ENV']['ENV']
-    manager = OrderManager(env)
     all_orders = manager.get_all_orders()
     # select types to display
     selected_types = st.multiselect("Select Plushie Types", PlushieType.__members__.values(), default=[PlushieType.small, PlushieType.large])
