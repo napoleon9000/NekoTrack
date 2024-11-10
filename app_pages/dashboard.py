@@ -66,7 +66,12 @@ def app():
         with st.container(border=True):
             st.markdown("### Income Records")
             if records is not None:
-                st.dataframe(records)
+                st.dataframe(records.astype({
+                    'date':'datetime64[ns]',
+                    'POS_machine': 'float64',
+                    'auto_machine': 'float64',
+                    'total': 'float64',
+                }))
             else:
                 st.info("No income records yet")
     
@@ -75,16 +80,46 @@ def app():
         with st.container(border=True):
             st.markdown(f"### Payout Rate - Today: {today_payout_rate:.2f}")
             st.markdown("#### Hardest 5")
-            st.dataframe(today_df.head(5).T)
+            # First transpose, then convert types
+            hardest_5 = today_df.head(5).reset_index(drop=True).T
+            st.dataframe(hardest_5.astype({
+                0: 'string',  # After transpose, column names become numeric indices
+                1: 'string',
+                2: 'string',
+                3: 'string',
+                4: 'string'
+            }))
+            
             st.markdown("#### Easiest 5")
-            st.dataframe(today_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
+            easiest_5 = today_df.tail(5).sort_values(by='payout_rate', ascending=True).reset_index(drop=True).T
+            st.dataframe(easiest_5.astype({
+                0: 'string',
+                1: 'string',
+                2: 'string',
+                3: 'string',
+                4: 'string'
+            }))
     with col3:
         with st.container(border=True):
             st.markdown(f"### Payout Rate - Last 3 Days: {last_3_days_payout_rate:.2f}")
             st.markdown("#### Hardest 5")
-            st.dataframe(last_3_days_df.head(5).T)
+            hardest_5 = last_3_days_df.head(5).reset_index(drop=True).T
+            st.dataframe(hardest_5.astype({
+                0: 'string',
+                1: 'string',
+                2: 'string',
+                3: 'string',
+                4: 'string'
+            }))
             st.markdown("#### Easiest 5")
-            st.dataframe(last_3_days_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
+            easiest_5 = last_3_days_df.tail(5).sort_values(by='payout_rate', ascending=True).reset_index(drop=True).T
+            st.dataframe(easiest_5.astype({
+                0: 'string',
+                1: 'string',
+                2: 'string',
+                3: 'string',
+                4: 'string'
+            }))
         
     st.markdown("---")
 
