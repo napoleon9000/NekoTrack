@@ -6,10 +6,12 @@ from datetime import datetime
 # Third-party imports
 import pandas as pd
 import streamlit as st
-from tinydb import TinyDB, Query
-from tinydb.storages import MemoryStorage
 from streamlit_authenticator import Authenticate
-from st_files_connection import FilesConnection
+
+st.set_page_config(
+    page_title="NekoTrack",
+    layout="wide",
+    )
 
 # Local application imports
 from backend.user_mgr import Manager
@@ -28,10 +30,6 @@ from app_pages.edit_order import app as edit_order_page
 
 logging.basicConfig(level=logging.INFO)
 
-st.set_page_config(
-    page_title="NekoTrack",
-    layout="wide",
-    )
 
 st_secrets = dict(st.secrets)
 credentials = st.secrets["credentials"].to_dict()

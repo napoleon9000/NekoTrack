@@ -127,6 +127,7 @@ class Manager(BaseManager):
         for machine in machines:
             machine_id = machine.id
             analyze_result, all_time_payout_rate, last_3_days_payout_rate = self.calculate_machine_payout_rate(machine_id)
+            logger.info(f"results for {machine.name}: {analyze_result}")
             all_results.append({
                 'machine_id': machine_id,
                 'last_day_payout_rate': analyze_result['daily_payout_rate'].iloc[-1],
