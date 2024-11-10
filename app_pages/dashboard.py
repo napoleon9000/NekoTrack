@@ -37,54 +37,54 @@ def app():
         with col3:  
             st.write(f'Welcome *{name}*')
 
-    # toy_record_manager = ToyRecordManager(env)
+    toy_record_manager = ToyRecordManager(env)
 
-    # records = toy_record_manager.get_all_income_records()
-    # machines = toy_record_manager.get_all_machines_obj()
-    # all_analyze_results = []
-    # today_results = []
-    # last_3_days_results = []
-    # for machine in machines:
-    #     analyze_result, all_time_payout_rate, last_3_days_payout_rate = toy_record_manager.calculate_machine_payout_rate(machine.id)
-    #     all_analyze_results.append(analyze_result)
-    #     today_payout_rate = analyze_result['daily_payout_rate'].iloc[-1]
-    #     today_results.append((machine.name, today_payout_rate))
-    #     last_3_days_results.append((machine.name, last_3_days_payout_rate))
-    # today_df = pd.DataFrame(today_results, columns=['machine', 'payout_rate']).sort_values(by='payout_rate', ascending=False)
-    # today_df['payout_rate'] = today_df['payout_rate'].round(decimals=2)
-    # last_3_days_df = pd.DataFrame(last_3_days_results, columns=['machine', 'payout_rate']).sort_values(by='payout_rate', ascending=False)
-    # last_3_days_payout_rate = analyze_result['daily_payout_rate'].iloc[-3:].mean()
-    # last_3_days_df['payout_rate'] = last_3_days_df['payout_rate'].round(decimals=2)
+    records = toy_record_manager.get_all_income_records()
+    machines = toy_record_manager.get_all_machines_obj()
+    all_analyze_results = []
+    today_results = []
+    last_3_days_results = []
+    for machine in machines:
+        analyze_result, all_time_payout_rate, last_3_days_payout_rate = toy_record_manager.calculate_machine_payout_rate(machine.id)
+        all_analyze_results.append(analyze_result)
+        today_payout_rate = analyze_result['daily_payout_rate'].iloc[-1]
+        today_results.append((machine.name, today_payout_rate))
+        last_3_days_results.append((machine.name, last_3_days_payout_rate))
+    today_df = pd.DataFrame(today_results, columns=['machine', 'payout_rate']).sort_values(by='payout_rate', ascending=False)
+    today_df['payout_rate'] = today_df['payout_rate'].round(decimals=2)
+    last_3_days_df = pd.DataFrame(last_3_days_results, columns=['machine', 'payout_rate']).sort_values(by='payout_rate', ascending=False)
+    last_3_days_payout_rate = analyze_result['daily_payout_rate'].iloc[-3:].mean()
+    last_3_days_df['payout_rate'] = last_3_days_df['payout_rate'].round(decimals=2)
 
-    # _, df = toy_record_manager.plot_overall_analyze_result(all_analyze_results)
-    # today_payout_rate = df['daily_payout_rate'].iloc[-1]
-    # last_3_days_payout_rate = df['daily_payout_rate'].iloc[-3:].mean()
+    _, df = toy_record_manager.plot_overall_analyze_result(all_analyze_results)
+    today_payout_rate = df['daily_payout_rate'].iloc[-1]
+    last_3_days_payout_rate = df['daily_payout_rate'].iloc[-3:].mean()
 
 
-    # col1, col2, col3 = st.columns([1, 1, 1])
-    # with col1:
-    #     with st.container(border=True):
-    #         st.markdown("### Income Records")
-    #         if records is not None:
-    #             st.dataframe(records)
-    #         else:
-    #             st.info("No income records yet")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        with st.container(border=True):
+            st.markdown("### Income Records")
+            if records is not None:
+                st.dataframe(records)
+            else:
+                st.info("No income records yet")
     
-    # with col2:
-    #     # machines with highest payout rate and lowest payout rate
-    #     with st.container(border=True):
-    #         st.markdown(f"### Payout Rate - Today: {today_payout_rate:.2f}")
-    #         st.markdown("#### Hardest 5")
-    #         st.dataframe(today_df.head(5).T)
-    #         st.markdown("#### Easiest 5")
-    #         st.dataframe(today_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
-    # with col3:
-    #     with st.container(border=True):
-    #         st.markdown(f"### Payout Rate - Last 3 Days: {last_3_days_payout_rate:.2f}")
-    #         st.markdown("#### Hardest 5")
-    #         st.dataframe(last_3_days_df.head(5).T)
-    #         st.markdown("#### Easiest 5")
-    #         st.dataframe(last_3_days_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
+    with col2:
+        # machines with highest payout rate and lowest payout rate
+        with st.container(border=True):
+            st.markdown(f"### Payout Rate - Today: {today_payout_rate:.2f}")
+            st.markdown("#### Hardest 5")
+            st.dataframe(today_df.head(5).T)
+            st.markdown("#### Easiest 5")
+            st.dataframe(today_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
+    with col3:
+        with st.container(border=True):
+            st.markdown(f"### Payout Rate - Last 3 Days: {last_3_days_payout_rate:.2f}")
+            st.markdown("#### Hardest 5")
+            st.dataframe(last_3_days_df.head(5).T)
+            st.markdown("#### Easiest 5")
+            st.dataframe(last_3_days_df.tail(5).sort_values(by='payout_rate', ascending=True).T)
         
     st.markdown("---")
 
