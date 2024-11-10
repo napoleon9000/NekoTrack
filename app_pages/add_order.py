@@ -10,6 +10,8 @@ def create_order(order_id, manager: Manager):
     manager.create_order(order_id)
     st.success("Order created successfully")
 
+def get_value(data, key, default=None):
+    return data.get(key, default) if data is not None else default
 
 def app():
     if 'selected_order_for_duplicate' in st.session_state:
@@ -33,25 +35,29 @@ def app():
             st.image(image, width=250)
     with col2:
         with st.form(key='create_order_form', border=False):
-            name = st.text_input("Name", value=dup_order.get('name', ''))
+            name = st.text_input("Name", value=get_value(dup_order, 'name'))
             cols = st.columns(2)
             with cols[0]:
-                seller = st.text_input("Seller", value=dup_order.get('seller', ''))
+                seller = st.text_input("Seller", value=get_value(dup_order, 'seller'))
             with cols[1]:
                 preset_seller = st.selectbox(
                     "Preset Seller", 
                     [None, "Temu", "New York"],
-                    index=[None, "Temu", "New York"].index(dup_order.get('seller')) if dup_order.get('seller') in ["Temu", "New York"] else 0
+                    index=[None, "Temu", "New York"].index(get_value(dup_order, 'seller')) if get_value(dup_order, 'seller') in ["Temu", "New York"] else 0
                 )
-            status = st.selectbox("Status", [status.value for status in OrderStatus], index=[status.value for status in OrderStatus].index(dup_order.get('status')))
-            tracking_number = st.text_input("Tracking Number", value=dup_order.get('tracking_number', ''))
-            amount = st.number_input("Amount", min_value=1, step=1, value=dup_order.get('amount', 1))
-            plushie_type = st.selectbox("Plushie Type", [type.value for type in PlushieType], index=[type.value for type in PlushieType].index(dup_order.get('plushie_type')))
-            price = st.number_input("Price", min_value=0.0, step=0.01, format="%.2f", value=float(dup_order.get('price', 0)))
-            shipping_cost = st.number_input("Shipping Cost", min_value=0.0, step=0.01, format="%.2f", value=float(dup_order.get('shipping_cost', 0)))
-            shipping_date = st.date_input("Shipping Date", value=dup_order.get('shipping_date', None))
-            expected_deliver_date = st.date_input("Expected Delivery Date", value=dup_order.get('expected_deliver_date', None))
-            notes = st.text_area("Notes", value=dup_order.get('notes', ''))
+            if dup_order:
+                status = st.selectbox("Status", [status.value for status in OrderStatus], index=[status.value for status in OrderStatus].index(get_value(dup_order, 'status')))
+            else:
+                status = st.selectbox("Status", [status.value for status in OrderStatus], index=0)
+            tracking_number = st.text_input("Tracking Number", value=get_value(dup_order, 'tracking_number'))
+            amount = st.number_input("Amount", min_value=1, step=1, value=get_value(dup_order, 'amount', 1))
+            plushie_type_options = [type.value for type in PlushieType] 
+            plushie_type = st.selectbox("Plushie Type", plushie_type_options, index=plushie_type_options.index(get_value(dup_order, 'plushie_type', plushie_type_options[0])))
+            price = st.number_input("Price", min_value=0.0, step=0.01, format="%.2f", value=float(get_value(dup_order, 'price', 0)))
+            shipping_cost = st.number_input("Shipping Cost", min_value=0.0, step=0.01, format="%.2f", value=float(get_value(dup_order, 'shipping_cost', 0)))
+            shipping_date = st.date_input("Shipping Date", value=get_value(dup_order, 'shipping_date', None))
+            expected_deliver_date = st.date_input("Expected Delivery Date", value=get_value(dup_order, 'expected_deliver_date', None))
+            notes = st.text_area("Notes", value=get_value(dup_order, 'notes', ''))
 
             if st.form_submit_button("Save"):
                 new_order = Order(
