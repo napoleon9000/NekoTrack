@@ -28,7 +28,7 @@ def render_order_card(order):
         col1, col2 = st.columns([1, 3]) 
         with col1:
             if order.get('image_path'):
-                st.image(order['image_path'], width=100)
+                st.image(manager.get_image_by_path(order['image_path']), width=100)
             else:
                 order_type = order['plushie_type']
                 st.image(default_image_map[order_type], width=100)
@@ -38,9 +38,12 @@ def render_order_card(order):
             name = order.get('name', None)
             id = order.get('id', None)
             st.markdown(f"### {name if name else f'Order #{id[:8]}'}")
+            expected_deliver_date = order.get('expected_deliver_date', None)
+            expected_deliver_date_str = expected_deliver_date.strftime('%Y-%m-%d') if expected_deliver_date else 'N/A'
+
             st.markdown(f"""
                 **Seller:** {order.get('seller', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Price:** ${order.get('price', 0):.2f}  
-                **Status:** {order.get('status', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Expected Delivery:** {order.get('expected_deliver_date', 'N/A'):%Y-%m-%d}
+                **Status:** {order.get('status', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Expected Delivery:** {expected_deliver_date_str}
             """)
             if order.get('notes'):
                 st.markdown(order['notes'])

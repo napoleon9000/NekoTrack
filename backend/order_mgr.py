@@ -1,3 +1,6 @@
+import logging
+from datetime import datetime
+import uuid
 from backend.base_manager import Manager as BaseManager
 
 class OrderManager(BaseManager):
@@ -28,8 +31,10 @@ class OrderManager(BaseManager):
 
     def get_all_orders(self):
         all_orders = self.firestore_db.get_collection('orders')
-        # sort by delivery date
-        all_orders.sort(key=lambda x: x['expected_deliver_date'] or datetime.max)
+        # Sort by delivery date, handling None values and timezone
+        all_orders.sort(key=lambda x: (x['expected_deliver_date'].replace(tzinfo=None) 
+                                     if x['expected_deliver_date'] 
+                                     else datetime.max))
         return all_orders
 
     def create_inventory(self, inventory, image=None):

@@ -78,14 +78,18 @@ class BlobDB:
 
         # Convert RGBA to RGB if needed
         if image.mode == 'RGBA':
+            logging.info("Converting RGBA to RGB")
             image = image.convert('RGB')
 
         if compress:
+            logging.info("Compressing image")
             # downsample the image to width 512 and rotate to portrait
-            if image.width > image.height:
+            if False:
+                logging.info("Rotating image")
                 image = image.rotate(-90, expand=True)
                 image = image.resize((512, int(image.height * 512 / image.width)))
             else:
+                logging.info("Resizing image")
                 image = image.resize((512, int(image.height * 512 / image.width)))
             file = io.BytesIO()
             image.save(file, format="JPEG")
