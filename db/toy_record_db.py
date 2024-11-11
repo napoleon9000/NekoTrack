@@ -72,71 +72,48 @@ class BlobDB:
             content = f.read()
             return content
 
-    # def upload_file(self, file: io.BytesIO, path: str, compress: bool = False):
-    #     full_path = f"{self.bucket}/{path}"
-
-    #     if compress:
-    #         # downsample the image to width 512 and rotate to portrait
-    #         image = Image.open(file)
-    #         if image.width > image.height:
-    #             image = image.rotate(-90, expand=True)
-    #             image = image.resize((512, int(image.height * 512 / image.width)))
-    #         else:
-    #             image = image.resize((512, int(image.height * 512 / image.width)))
-    #         file = io.BytesIO()
-    #         image.save(file, format="JPEG")
-    #         file.seek(0)
-
-    #     # Create a temporary file
-    #     with tempfile.NamedTemporaryFile(mode='wb', delete=False) as temp_file:
-    #         if isinstance(file, io.BytesIO):
-    #             # Seek to the beginning of the file
-    #             file.seek(0)
-    #             # Write the content of the BytesIO object to the temp file
-    #             temp_file.write(file.read())
-    #         elif isinstance(file, str):
-    #             # If it's a file path, read the file and write to temp file
-    #             with open(file, 'rb') as f:
-    #                 temp_file.write(f.read())
-    #         else:
-    #             raise ValueError("File must be either a BytesIO object or a file path string")
-            
-    #         # Ensure all data is written to disk
-    #         temp_file.flush()
-    #         os.fsync(temp_file.fileno())
-
-    #     try:
-    #         # Use put method to upload the temporary file
-    #         logging.info(f"Uploading file to {path}")
-    #         logging.info(f"File: {temp_file.name}")
-    #         self.conn._instance.put(temp_file.name, full_path)
-    #     finally:
-    #         # Clean up the temporary file
-    #         os.unlink(temp_file.name)
-
-    def upload_file(self, file, path, compress=False):
-        # Open the image
+    def upload_file(self, file: io.BytesIO, path: str, compress: bool = False):
+        full_path = f"{self.bucket}/{path}"
         image = Image.open(file)
-        
+
         # Convert RGBA to RGB if needed
         if image.mode == 'RGBA':
             image = image.convert('RGB')
-        
-        # Compress if requested
+
         if compress:
-            if image.width > 512:
+            # downsample the image to width 512 and rotate to portrait
+            if image.width > image.height:
+                image = image.rotate(-90, expand=True)
                 image = image.resize((512, int(image.height * 512 / image.width)))
-            elif image.height > 512:
-                image = image.resize((int(image.width * 512 / image.height), 512))
-        
-        # Save to BytesIO
-        file = io.BytesIO()
-        image.save(file, format="JPEG", quality=85)  # You can adjust quality (1-100)
-        file.seek(0)
-        
-        # Upload to storage
-        bucket = self.storage_client.bucket(self.bucket_name)
-        blob = bucket.blob(path)
-        blob.upload_from_file(file)
-        
-        return path
+            else:
+                image = image.resize((512, int(image.height * 512 / image.width)))
+            file = io.BytesIO()
+            image.save(file, format="JPEG")
+            file.seek(0)
+
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as temp_file:
+            if isinstance(file, io.BytesIO):
+                # Seek to the beginning of the file
+                file.seek(0)
+                # Write the content of the BytesIO object to the temp file
+                temp_file.write(file.read())
+            elif isinstance(file, str):
+                # If it's a file path, read the file and write to temp file
+                with open(file, 'rb') as f:
+                    temp_file.write(f.read())
+            else:
+                raise ValueError("File must be either a BytesIO object or a file path string")
+            
+            # Ensure all data is written to disk
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
+
+        try:
+            # Use put method to upload the temporary file
+            logging.info(f"Uploading file to {path}")
+            logging.info(f"File: {temp_file.name}")
+            self.conn._instance.put(temp_file.name, full_path)
+        finally:
+            # Clean up the temporary file
+            os.unlink(temp_file.name)
