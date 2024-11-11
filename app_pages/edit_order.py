@@ -20,7 +20,7 @@ def app():
     col1, col2 = st.columns([2, 7])
     with col1:
         if order.get('image_path'):
-            st.image(order['image_path'], width=250)
+            st.image(manager.get_image_by_path(order['image_path']), width=250)
         new_image = st.file_uploader("Update Image", type=["jpg", "png"])
         if new_image:
             st.image(new_image, width=250)

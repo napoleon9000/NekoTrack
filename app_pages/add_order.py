@@ -29,7 +29,7 @@ def app():
     col1, col2 = st.columns([2, 7])
     with col1: 
         if dup_order and dup_order.get('image_path'):
-            st.image(dup_order['image_path'], width=250)
+            st.image(manager.get_image_by_path(dup_order['image_path']), width=250)
         image = st.file_uploader("New Image", type=["jpg", "png"])
         if image:
             st.image(image, width=250)
