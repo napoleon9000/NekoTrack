@@ -29,7 +29,7 @@ class OrderManager(BaseManager):
     def get_all_orders(self):
         all_orders = self.firestore_db.get_collection('orders')
         # sort by delivery date
-        all_orders.sort(key=lambda x: x['expected_deliver_date'])
+        all_orders.sort(key=lambda x: x['expected_deliver_date'] or datetime.max)
         return all_orders
 
     def create_inventory(self, inventory, image=None):
