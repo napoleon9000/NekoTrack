@@ -40,10 +40,13 @@ def render_order_card(order):
             st.markdown(f"### {name if name else f'Order #{id[:8]}'}")
             expected_deliver_date = order.get('expected_deliver_date', None)
             expected_deliver_date_str = expected_deliver_date.strftime('%Y-%m-%d') if expected_deliver_date else 'N/A'
+            shipping_date = order.get('shipping_date', None)
+            shipping_date_str = shipping_date.strftime('%Y-%m-%d') if shipping_date else 'N/A'
 
             st.markdown(f"""
                 **Seller:** {order.get('seller', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Price:** ${order.get('price', 0):.2f}  
                 **Status:** {order.get('status', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Expected Delivery:** {expected_deliver_date_str}
+                **Shipping Date:** {shipping_date_str}
             """)
             if order.get('notes'):
                 st.markdown(order['notes'])
