@@ -82,8 +82,8 @@ def app():
                         'plushie_type': plushie_type,
                         'price': price,
                         'shipping_cost': shipping_cost,
-                        'shipping_date': datetime.combine(shipping_date, datetime.min.time()),  # Convert date to datetime
-                        'expected_deliver_date': datetime.combine(expected_deliver_date, datetime.min.time()),  # Convert date to datetime
+                        'shipping_date': datetime.combine(shipping_date, datetime.min.time()) if shipping_date else None,  # Convert date to datetime
+                        'expected_deliver_date': datetime.combine(expected_deliver_date, datetime.min.time()) if expected_deliver_date else None,  # Convert date to datetime
                         'notes': notes
                     }
 
