@@ -9,3 +9,6 @@ def redemption_history_to_df(redemption_history):
 def get_image_by_path(path, _db):
     image = _db.download_file(path)
     return image
+
+def get_image_by_path_no_cache(path, _db):
+    return get_image_by_path(path, _db)

@@ -6,6 +6,8 @@ from io import BytesIO
 import logging
 logger = logging.getLogger(__name__)
 
+preset_seller_options = ["Temu", "New York", "1688", "Mengai"]
+
 def create_order(order_id, manager: Manager):
     manager.create_order(order_id)
     st.success("Order created successfully")
@@ -29,7 +31,7 @@ def app():
     col1, col2 = st.columns([2, 7])
     with col1: 
         if dup_order and dup_order.get('image_path'):
-            st.image(manager.get_image_by_path(dup_order['image_path']), width=250)
+            st.image(manager.get_image_by_path(dup_order['image_path'], cache=False), width=250)
         image = st.file_uploader("New Image", type=["jpg", "png"])
         if image:
             st.image(image, width=250)
@@ -42,8 +44,8 @@ def app():
             with cols[1]:
                 preset_seller = st.selectbox(
                     "Preset Seller", 
-                    [None, "Temu", "New York"],
-                    index=[None, "Temu", "New York"].index(get_value(dup_order, 'seller')) if get_value(dup_order, 'seller') in ["Temu", "New York"] else 0
+                    preset_seller_options,
+                    index=preset_seller_options.index(get_value(dup_order, 'seller')) if get_value(dup_order, 'seller') in preset_seller_options else 0
                 )
             if dup_order:
                 status = st.selectbox("Status", [status.value for status in OrderStatus], index=[status.value for status in OrderStatus].index(get_value(dup_order, 'status')))
