@@ -86,6 +86,9 @@ def app():
                         'expected_deliver_date': datetime.combine(expected_deliver_date, datetime.min.time()),  # Convert date to datetime
                         'notes': notes
                     }
+
+                    # remove None values from updates
+                    updates = {k: v for k, v in updates.items() if v is not None}
                     
                     if new_image:
                         img_bytesio = BytesIO(new_image.getvalue())
