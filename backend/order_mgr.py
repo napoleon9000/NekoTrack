@@ -32,8 +32,8 @@ class OrderManager(BaseManager):
     def get_all_orders(self):
         all_orders = self.firestore_db.get_collection('orders')
         # Sort by delivery date, handling None values and timezone
-        all_orders.sort(key=lambda x: (x['expected_deliver_date'].replace(tzinfo=None) 
-                                     if x['expected_deliver_date'] 
+        all_orders.sort(key=lambda x: (x['shipping_date'].replace(tzinfo=None) 
+                                     if x['shipping_date'] 
                                      else datetime.max))
         return all_orders
 

@@ -7,6 +7,7 @@ class PlushieType(Enum):
     medium = 'medium'  # < 10 credits
     large = 'large'    # > 10 credits
     keychain = 'keychain'    # keychain or 4 inch
+    figures = 'figures'    # shouban
 
 class OrderStatus(Enum):
     ordered = 'ordered'   # ordered from original seller

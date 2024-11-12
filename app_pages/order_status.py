@@ -45,8 +45,8 @@ def render_order_card(order):
 
             st.markdown(f"""
                 **Seller:** {order.get('seller', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Price:** ${order.get('price', 0):.2f}  
-                **Status:** {order.get('status', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Expected Delivery:** {expected_deliver_date_str}
-                **Shipping Date:** {shipping_date_str}
+                **Status:** {order.get('status', 'N/A')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Shipping Date:** {shipping_date_str}
+                **Expected Delivery:** {expected_deliver_date_str}
             """)
             if order.get('notes'):
                 st.markdown(order['notes'])
